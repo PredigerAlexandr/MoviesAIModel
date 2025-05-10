@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import ItemList
+from .views import AiModel
 
 urlpatterns = [
-    path('items/', ItemList.as_view(), name='item-list'),
+    path('ai-model/', AiModel.as_view(), name='item-list'),
 ]

@@ -1,6 +1,6 @@
 import numpy as np
 
-from Models.Movie import MovieEntity
+from .Models.Movie import MovieEntity
 from typing import List, Optional
 import json
 
