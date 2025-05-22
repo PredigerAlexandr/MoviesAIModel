@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import null
 import numpy as np
 from typing import Optional
@@ -13,6 +15,7 @@ class AIModelHelper:
     model = null
 
     def GetRecommendedMovie(self) -> MovieEntity:
+        dataset_helper = DataSetHelper()
         movies = DbHelper.get_movies_from_db()
         if AIModelHelper.model == null:
             DataSetHelper.PreparationData(movies)
@@ -28,11 +31,15 @@ class AIModelHelper:
             recommended_movie = np.random.choice(movies)
             return recommended_movie
 
-        distances, indices = AIModelHelper.model.kneighbors([user_preference.preference], n_neighbors=3)
+        modify_preference = dataset_helper.prepare_preference(user_preference.preference)
+
+        distances, indices = AIModelHelper.model.kneighbors([modify_preference], n_neighbors=3)
         recommended_movies = [movies[i] for i in indices.flatten()]
 
         not_recommended_movies = [movie for movie in recommended_movies if
-                                  movie.Id not in user_preference.rated_film_ids]
+                                  UUID(movie.Id) not in user_preference.rated_film_ids]
+
+
 
         if len(not_recommended_movies) != 0:
             return not_recommended_movies[0]
@@ -40,7 +47,7 @@ class AIModelHelper:
         distances, indices = AIModelHelper.model.kneighbors([user_preference.preference], n_neighbors=5)
         recommended_movies = [movies[i] for i in indices.flatten()]
         not_recommended_movies = [movie for movie in recommended_movies if
-                                  movie.Id not in user_preference.rated_film_ids]
+                                  UUID(movie.Id) not in user_preference.rated_film_ids]
 
         if len(not_recommended_movies) != 0:
             return not_recommended_movies[0]
@@ -48,7 +55,7 @@ class AIModelHelper:
         distances, indices = AIModelHelper.model.kneighbors([user_preference.preference], n_neighbors=10)
         recommended_movies = [movies[i] for i in indices.flatten()]
         not_recommended_movies = [movie for movie in recommended_movies if
-                                  movie.Id not in user_preference.rated_film_ids]
+                                  UUID(movie.Id) not in user_preference.rated_film_ids]
 
         if len(not_recommended_movies) != 0:
             return not_recommended_movies[0]
@@ -56,8 +63,8 @@ class AIModelHelper:
         # Были сделаны 3 попытки подобрать фильм по рекомендациям, но в каждой из попытки мы получали уже те фильмы,
         # которые были оценены ранее, поэтому возвращаем просто рандомный фильм, который ранее ещё не был оценён пользователем
 
-        not_recommended_movies = [movie for movie in movies if
-                                  movie.Id not in user_preference.rated_film_ids]
+        not_recommended_movies = [movie for movie in recommended_movies if
+                                  UUID(movie.Id) not in user_preference.rated_film_ids]
 
         return np.random.choice(not_recommended_movies)
 

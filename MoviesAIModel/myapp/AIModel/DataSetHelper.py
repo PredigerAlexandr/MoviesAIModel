@@ -38,10 +38,6 @@ class DataSetHelper:
 
     @staticmethod
     def extract_features(movie: MovieEntity):
-        allActors = []
-        allGenres = []
-        allCreatedCountries = []
-
         with open('actors.json', 'r', encoding='utf-8') as json_file:
             allActors = json.load(json_file)
         with open('genres.json', 'r', encoding='utf-8') as json_file:
@@ -66,3 +62,20 @@ class DataSetHelper:
         DataSetHelper.i = DataSetHelper.i+1
 
         return np.array(genres_vector + actors_vector + countries_vector + created_year_vector)
+
+    def prepare_preference(self, preference:List[float]):
+        with open('actors.json', 'r', encoding='utf-8') as json_file:
+            allActors = json.load(json_file)
+            actorsCount = len(allActors)
+        with open('genres.json', 'r', encoding='utf-8') as json_file:
+            allGenres = json.load(json_file)
+            genresCount = len(allGenres)
+        with open('countries.json', 'r', encoding='utf-8') as json_file:
+            allCreatedCountries = json.load(json_file)
+            countriesCount = len(allCreatedCountries)
+
+        #требуется выделить предпочтения пользователя по жанрам, странам и годам производства, т.к. актёров слишком много, чтобы они имели такой де приоритет
+        weights = np.array([0.1]*actorsCount+[2]*genresCount+[5]*countriesCount+[10]*4)
+        prepared_preference = np.array(preference) * weights
+        return prepared_preference.tolist()
+
