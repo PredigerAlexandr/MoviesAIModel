@@ -1,0 +1,6 @@
+Django
+djangorestframework
+null
+numpy
+psycopg2
+scikit-learn
